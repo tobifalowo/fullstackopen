@@ -25,7 +25,7 @@ const App = () => {
   const getNextAnecdote = () => {
     let index = getRandomIndex(anecdotes.length)
     // Ensure that the quote changes
-    if (index == selected) {
+    if (index === selected) {
       index = (index + 1) % anecdotes.length
     }
     setSelected(index)
@@ -37,9 +37,16 @@ const App = () => {
     setPoints(copy)
   }
 
+  const getMostVoted = () => {
+    const copy = [...points]
+    const max = Math.max.apply(null, copy);
+    return copy.indexOf(max)
+  }
+
   return (
     <>
     <div>
+      <h1>Anecdote of the Day</h1>
       {anecdotes[selected]}
       <br/>
       has {points[selected]} votes
@@ -47,6 +54,12 @@ const App = () => {
     <div>
     <Button handleClick={applyVote} text="Vote" />
     <Button handleClick={getNextAnecdote} text="Next Anecdote" />
+    </div>
+    <div>
+      <h1>Anecdote with the Most Votes</h1>
+      {anecdotes[getMostVoted()]}
+      <br/>
+      has {points[getMostVoted()]} votes
     </div>
     </>
   )
