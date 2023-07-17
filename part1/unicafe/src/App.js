@@ -22,25 +22,25 @@ const App = () => {
   return (
     <div>
       <h1>Give Feedback</h1>
-      <button onClick={handleClickGood}>
-        Good
-      </button>
-      <button onClick={handleClickNeutral}>
-        Neutral
-      </button>
-      <button onClick={handleClickBad}>
-        Bad
-      </button>
+      <Button handleClick={handleClickGood} text="Good" />
+      <Button handleClick={handleClickNeutral} text="Neutral" />
+      <Button handleClick={handleClickBad} text="Bad" />
+      <h1>Statistics</h1>
       <Statistics good={good} neutral={neutral} bad={bad} />
     </div>
   )
 }
 
+const Button = (props) => (
+  <button onClick={props.handleClick}>
+    {props.text}
+  </button>
+)
+
 const Statistics = (props) => {
   if (props.good + props.neutral + props.bad <= 0) {
     return (
       <>
-      <h1>Statistics</h1>
       <p>
         No feedback given
       </p>
@@ -50,25 +50,12 @@ const Statistics = (props) => {
   } else {
     return (
       <>
-      <h1>Statistics</h1>
-      <p>
-        Good: {props.good}
-      </p>
-      <p>
-        Neutral: {props.neutral}
-      </p>
-      <p>
-        Bad: {props.bad}
-      </p>
-      <p>
-        All: {props.good + props.neutral + props.bad}
-      </p>
-      <p>
-        Average: {(props.good - props.bad) / (props.good + props.neutral + props.bad)}
-      </p>
-      <p>
-        Positive: {100 * (props.good) / (props.good + props.neutral + props.bad)} %
-      </p>
+      <StatisticLine text="Good" value={props.good} />
+      <StatisticLine text="Neutral" value={props.neutral} />
+      <StatisticLine text="Bad" value={props.bad} />
+      <StatisticLine text="All" value={props.good + props.neutral + props.bad} />
+      <StatisticLine text="Average" value={(props.good - props.bad) / (props.good + props.neutral + props.bad)} />
+      <StatisticLine text="Positive" value={100 * (props.good) / (props.good + props.neutral + props.bad) + " %"}  />
       </>
     )
   }
@@ -76,7 +63,7 @@ const Statistics = (props) => {
 
 const StatisticLine = (props) => {
   return (
-    <h1>{props.text}</h1>
+    <p>{props.text}: {props.value}</p>
   )
 }
 
