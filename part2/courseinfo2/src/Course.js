@@ -17,7 +17,7 @@ const Course = (props) => {
   const Content = (props) => {
     return (
       <div>
-        {props.parts.map(part => <Part part={part}/>)}
+        {props.parts.map(part => <Part part={part} key={part.id}/>)}
       </div>
     )
   }
