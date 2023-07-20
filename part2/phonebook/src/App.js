@@ -10,10 +10,14 @@ const App = () => {
     event.preventDefault()
     let copy = [...persons]
     console.log('newname', newName)
-    copy.push({ name: newName})
-    console.log('copy', copy)
-    setPersons(copy)
-    setNewName('')
+    if (persons.map(person => person.name).includes(newName)) {
+      alert(`${newName} is already added to phonebook`)
+    } else {
+      copy.push({ name: newName})
+      console.log('copy', copy)
+      setPersons(copy)
+      setNewName('')
+    }
   }
 
   const handleNameChange = (event) => {
