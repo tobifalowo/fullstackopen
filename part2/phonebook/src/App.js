@@ -25,11 +25,18 @@ const App = () => {
     if (persons.map(person => person.name).includes(newName)) {
       alert(`${newName} is already added to phonebook`)
     } else {
-      copy.push({ name: newName, number: newNumber})
-      console.log('copy', copy)
-      setPersons(copy)
-      setNewName('')
-      setNewNumber('')
+      const personObject = {
+        name: newName,
+        number: newNumber
+      }
+
+      axios
+        .post('http://localhost:3001/persons', personObject)
+        .then(response => {
+          setPersons(persons.concat(response.data))
+          setNewName('')
+          setNewNumber('')
+        })
     }
   }
 
