@@ -54,6 +54,17 @@ const App = () => {
     setfilterString(event.target.value)
   }
 
+  const deletePerson = (id) => {
+    const name = persons.find(person => person.id === id).name
+    if (window.confirm(`Delete ${name}?`)) {
+      personService
+        .deleteEntry(id)
+        .then(returnedPerson => {
+          setPersons(persons.filter(p => p.id !== id))
+        })
+    }
+  }
+
   const shownPersons = persons.filter(person =>
     person.name.toLowerCase().includes(filterString.toLowerCase())
   )
@@ -71,7 +82,7 @@ const App = () => {
         numberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Persons persons={shownPersons}/>
+      <Persons persons={shownPersons} remove={deletePerson}/>
     </div>
   )
 }
@@ -94,14 +105,14 @@ const PersonForm = (props) => {
 
 const Persons = (props) => {
   return (
-    props.persons.map(person => <Person person={person} key={person.name}/>)
+    props.persons.map(person => <Person person={person} key={person.name} remove={props.remove}/>)
   )
 }
 
 const Person = (props) => {
   const person = props.person
   return (
-    <li>{person.name} {person.number}</li>
+    <li>{person.name} {person.number} <button onClick={() => props.remove(person.id)}>Delete</button></li>
   )
 }
 
