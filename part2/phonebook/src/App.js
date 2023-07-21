@@ -8,7 +8,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterString, setfilterString] = useState('')
-  const [noteMessage, setNoteMessage] = useState('some error happened...')
+  const [noteMessage, setNoteMessage] = useState(null)
 
   useEffect(() => {
     console.log('effect')
