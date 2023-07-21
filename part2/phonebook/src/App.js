@@ -1,17 +1,15 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import personService from './services/persons'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-  ])
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterString, setfilterString] = useState('')
   const [noteMessage, setNoteMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
-    console.log('effect')
     personService
       .getAll()
       .then(initialPersons => {
@@ -27,8 +25,6 @@ const App = () => {
       number: newNumber
     }
 
-    console.log('newname', newName)
-
     if (persons.map(person => person.name).includes(newName)) {
       const id = persons.find(person => person.name === newName).id
       if (window.confirm(
@@ -39,6 +35,10 @@ const App = () => {
           .then(returnedPerson => {
             setPersons(persons.map(p => p.id !== id ? p : returnedPerson))
             applyNote(`Updated ${newName}`)
+          })
+          .catch(error => {
+            applyError(`Failed to update ${newName}`)
+            refreshPersons()
           })
       }
     } else {
@@ -51,17 +51,19 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           applyNote(`Added ${newName}`)
         })
+        .catch(error => {
+          applyError(`Failed to add ${newName}`)
+          refreshPersons()
+        })
     }
   }
 
   const handleNameChange = (event) => {
     setNewName(event.target.value)
-    console.log('set name', event.target.value)
   }
 
   const handleNumberChange = (event) => {
     setNewNumber(event.target.value)
-    console.log('set number', event.target.value)
   }
 
   const handleFilterChange = (event) => {
@@ -77,6 +79,10 @@ const App = () => {
           setPersons(persons.filter(p => p.id !== id))
           applyNote(`Deleted ${name}`)
         })
+        .catch(error => {
+          applyError(`Failed to delete ${name}`)
+          refreshPersons()
+        })
     }
   }
 
@@ -87,6 +93,21 @@ const App = () => {
     }, 3000)
   } 
 
+  const applyError = (str) => {
+    setErrorMessage(str)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 3000)
+  }
+
+  const refreshPersons = () => {
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+      })
+  }
+
   const shownPersons = persons.filter(person =>
     person.name.toLowerCase().includes(filterString.toLowerCase())
   )
@@ -94,7 +115,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={noteMessage} />
+      <Notification message={errorMessage} color={'red'} />
+      <Notification message={noteMessage} color={'green'} />
       <Filter filterString={filterString} onChange={handleFilterChange} />
       <h2>Add Number</h2>
       <PersonForm
@@ -128,7 +150,7 @@ const PersonForm = (props) => {
 
 const Persons = (props) => {
   return (
-    props.persons.map(person => <Person person={person} key={person.name} remove={props.remove}/>)
+    props.persons.map(person => <Person person={person} key={person.id} remove={props.remove}/>)
   )
 }
 
@@ -139,9 +161,9 @@ const Person = (props) => {
   )
 }
 
-const Notification = ({ message }) => {
+const Notification = ({ message, color }) => {
   const notificationStyle = {
-    color: 'green',
+    color: color,
     background: 'lightgrey',
     fontSize: 20,
     borderStyle: 'solid',
