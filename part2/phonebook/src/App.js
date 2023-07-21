@@ -8,6 +8,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterString, setfilterString] = useState('')
+  const [noteMessage, setNoteMessage] = useState('some error happened...')
 
   useEffect(() => {
     console.log('effect')
@@ -37,6 +38,7 @@ const App = () => {
           .update(id, personObject)
           .then(returnedPerson => {
             setPersons(persons.map(p => p.id !== id ? p : returnedPerson))
+            applyNote(`Updated ${newName}`)
           })
       }
     } else {
@@ -47,6 +49,7 @@ const App = () => {
         .create(personObject)
         .then(returnedPerson => {
           setPersons(persons.concat(returnedPerson))
+          applyNote(`Added ${newName}`)
         })
     }
   }
@@ -72,9 +75,17 @@ const App = () => {
         .deleteEntry(id)
         .then(returnedPerson => {
           setPersons(persons.filter(p => p.id !== id))
+          applyNote(`Deleted ${name}`)
         })
     }
   }
+
+  const applyNote = (str) => {
+    setNoteMessage(str)
+    setTimeout(() => {
+      setNoteMessage(null)
+    }, 3000)
+  } 
 
   const shownPersons = persons.filter(person =>
     person.name.toLowerCase().includes(filterString.toLowerCase())
@@ -83,6 +94,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={noteMessage} />
       <Filter filterString={filterString} onChange={handleFilterChange} />
       <h2>Add Number</h2>
       <PersonForm
@@ -124,6 +136,28 @@ const Person = (props) => {
   const person = props.person
   return (
     <li>{person.name} {person.number} <button onClick={() => props.remove(person.id)}>Delete</button></li>
+  )
+}
+
+const Notification = ({ message }) => {
+  const notificationStyle = {
+    color: 'green',
+    background: 'lightgrey',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+  }
+
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className='error' style={notificationStyle}>
+      {message}
+    </div>
   )
 }
 
