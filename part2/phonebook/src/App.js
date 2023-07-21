@@ -20,15 +20,26 @@ const App = () => {
 
   const submitName = (event) => {
     event.preventDefault()
-    let copy = [...persons]
+
+    const personObject = {
+      name: newName,
+      number: newNumber
+    }
+
     console.log('newname', newName)
+
     if (persons.map(person => person.name).includes(newName)) {
-      alert(`${newName} is already added to phonebook`)
-    } else {
-      const personObject = {
-        name: newName,
-        number: newNumber
+      const id = persons.find(person => person.name === newName).id
+      if (window.confirm(
+        `${newName} is already added to phonebook. Replace the old number with a new one?`
+      )) {
+        personService
+          .update(id, personObject)
+          .then(returnedPerson => {
+            setPersons(persons.map(p => p.id !== id ? p : returnedPerson))
+          })
       }
+    } else {
       setNewName('')
       setNewNumber('')
 
