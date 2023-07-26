@@ -38,21 +38,22 @@ const App = () => {
           .then(returnedPerson => {
             setPersons(persons.map(p => p.id !== id ? p : returnedPerson))
             applyNote(`Updated ${newName}`)
+            setNewName('')
+            setNewNumber('')
           })
           .catch(error => {
-            applyError(`Failed to update ${newName}`)
+            applyError(error.response.data.error)
             refreshPersons()
           })
       }
     } else {
-      setNewName('')
-      setNewNumber('')
-
       personService
         .create(personObject)
         .then(returnedPerson => {
           setPersons(persons.concat(returnedPerson))
           applyNote(`Added ${newName}`)
+          setNewName('')
+          setNewNumber('')
         })
         .catch(error => {
           applyError(error.response.data.error)
