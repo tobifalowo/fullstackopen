@@ -55,7 +55,7 @@ const App = () => {
           applyNote(`Added ${newName}`)
         })
         .catch(error => {
-          applyError(`Failed to add ${newName}`)
+          applyError(error.response.data.error)
           refreshPersons()
         })
     }
