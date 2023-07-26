@@ -12,6 +12,8 @@ node_modules/
 
 # production
 /build
+**/build
+!part3/phonebook2/build
 
 # misc
 .DS_Store
