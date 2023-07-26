@@ -34,7 +34,7 @@ const App = () => {
         // console.log('results0:', results[0].name)
         setCountries(results)
         if (nmofMatches === 1) {
-          fetchWeather(countries[0])
+          fetchWeather(results[0])
         }
       } else {
         setCountries([])
@@ -69,9 +69,9 @@ const App = () => {
       weatherService
         .getWeather(lat, lon)
         .then(weather => {
-          console.log('countr', country)
-          console.log('weather', weather)
-          let copy = {...weatherMapping}
+          console.log('Fetching weather for: ', country)
+          console.log('Fetched weather: ', weather)
+          let copy = new Map(weatherMapping)
           copy.set(country.name.common, weather)
           setWeatherMapping(copy)
         })
@@ -148,17 +148,20 @@ const SoleCountry = ( {country, weather} ) => {
   )
 }
 
-const Weather = ( {country} ) => {
+const Weather = ( {country, weather} ) => {
   const capital = country.capital
-  const weather = country.weather
 
   if (weather) {
-    const iconCode = weather.weather.icon
+    const iconCode = weather.weather[0].icon
+    const description = weather.weather[0].description
+    const temperature = (weather.main.temp - 273.15).toPrecision(3)
+    console.log('iconCode: ', iconCode)
+    console.log('description: ', description)
     return (
       <div>
-        <h1>Weather in {capital}</h1>
-        <li>Temperature: {weather.main.temp - 273.15} Celcius</li>
-        <img src={`http://openweathermap.org/img/w/${iconCode}.png`} alt={weather.weather.description} />
+        <h2>Weather in {capital}</h2>
+        <li>Temperature: {temperature} Celcius</li>
+        <img src={`http://openweathermap.org/img/w/${iconCode}.png`} alt={description} />
         <li>Wind: {weather.wind.speed} m/s</li>
       </div>
     )
