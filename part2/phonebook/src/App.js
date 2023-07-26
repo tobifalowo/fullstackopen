@@ -15,6 +15,9 @@ const App = () => {
       .then(initialPersons => {
         setPersons(initialPersons)
       })
+      .catch(error => {
+        applyError(`Failed to retrieve initial persons`)
+      })
   }, [])
 
   const submitName = (event) => {
