@@ -85,9 +85,12 @@ app.put('/api/persons/:id', (request, response, next) => {
 })
 
 app.get('/info', (request, response) => {
-  const nofPeople = persons.length
-  const time = new Date()
-  response.send(`<p>Phonebook has info for ${nofPeople} people</p><p>${time}</p>`)
+  Person.countDocuments({})
+    .then(count => {
+      const time = new Date()
+      response.send(`<p>Phonebook has info for ${count} people</p><p>${time}</p>`)
+    })
+    .catch(error => next(error))
 })
 
 const PORT = 3001
