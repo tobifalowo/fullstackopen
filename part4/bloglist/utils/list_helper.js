@@ -51,9 +51,40 @@ const mostBlogs = (blogs) => {
   }
 }
 
+// returns the author who has the largest amount of likes
+const mostLikes = (blogs) => {
+  if (blogs.length === 0) {
+    return null
+  } else {
+    const grouped = Object.values(lodash.groupBy(blogs, blog => blog.author))
+    const top = grouped
+      .map(
+        blogs => {
+          return {
+            author: blogs[0].author,
+            likes: blogs.reduce(
+              (a, blog) => a + blog.likes,
+              0
+            )
+          }
+        })
+      .reduce(
+        (a, c) => {
+          if (a.likes > c.likes) {
+            return a
+          } else {
+            return c
+          }
+        }
+      )
+    return top
+  }
+}
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }
