@@ -25,17 +25,17 @@ const initialBlogs = [
 const initialUsers = [
   {
     username: "test",
-    password: "t4s90ig3",
+    passwordHash: "t4s90ig3",
     name: "Martin Tester"
   },
   {
     username: "rest",
-    password: "t4sjfgh3",
+    passwordHash: "t4sjfgh3",
     name: "Mathias Tester"
   },
   {
     username: "jest",
-    password: "t7s5867ur",
+    passwordHash: "t7s5867ur",
     name: "Mary Tester"
   },
 ]
