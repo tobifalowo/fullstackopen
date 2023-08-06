@@ -93,6 +93,45 @@ test('reject invalid blog posts', async () => {
     .expect(400)
 })
 
+test('delete blog posts', async () => {
+  const newBlog = {
+    title: 'Donuts Explained',
+    author: 'Homer Simpson',
+    url: 'http://www.blogger.xyz/homer/donuts',
+    likes: 0,
+  }
+  
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  let response = await api.get('/api/blogs')
+  const foundBlog = response.body.find(blog => blog.title === newBlog.title)
+
+  expect(response.body).toHaveLength(helper.initialBlogs.length + 1)
+  expect(foundBlog).toBeDefined()
+
+  const id = foundBlog.id
+
+  expect(id).toBeDefined()
+
+  console.log('deleting: ', id)
+
+  await api
+    .delete(`/api/blogs/${id}`)
+    .expect(204)
+
+  console.log('deleted')
+
+  response = await api.get('/api/blogs')
+  const deletedBlog = response.body.find(blog => blog.title === newBlog.title)
+
+  expect(response.body).toHaveLength(helper.initialBlogs.length)
+  expect(deletedBlog).toBeUndefined()
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
