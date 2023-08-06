@@ -123,13 +123,57 @@ test('delete blog posts', async () => {
     .delete(`/api/blogs/${id}`)
     .expect(204)
 
-  console.log('deleted')
-
   response = await api.get('/api/blogs')
   const deletedBlog = response.body.find(blog => blog.title === newBlog.title)
 
   expect(response.body).toHaveLength(helper.initialBlogs.length)
   expect(deletedBlog).toBeUndefined()
+})
+
+test('replace blog posts', async () => {
+  const newBlog = {
+    title: 'Donuts Explained',
+    author: 'Homer Simpson',
+    url: 'http://www.blogger.xyz/homer/donuts',
+    likes: 0,
+  }
+
+  const replacementBlog = {
+    title: 'Donuts Devoured',
+    author: 'Homer Simpson',
+    url: 'http://www.blogger.xyz/homer/donuts2',
+    likes: 0,
+  }
+  
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  let response = await api.get('/api/blogs')
+  const foundBlog = response.body.find(blog => blog.title === newBlog.title)
+
+  expect(response.body).toHaveLength(helper.initialBlogs.length + 1)
+  expect(foundBlog).toBeDefined()
+
+  const id = foundBlog.id
+
+  expect(id).toBeDefined()
+
+  console.log('replacing: ', id)
+
+  await api
+    .put(`/api/blogs/${id}`)
+    .send(replacementBlog)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  response = await api.get('/api/blogs')
+  const replacedBlog = response.body.find(blog => blog.id === id)
+
+  expect(response.body).toHaveLength(helper.initialBlogs.length + 1)
+  expect(replacedBlog.title).toBe(replacementBlog.title)
 })
 
 afterAll(async () => {
