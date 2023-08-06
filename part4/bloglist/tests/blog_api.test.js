@@ -72,6 +72,27 @@ test('blog likes default to 0', async () => {
   expect(foundBlog.likes).toBe(0)
 })
 
+test('reject invalid blog posts', async () => {
+  const newBlog1 = {
+    author: 'Homer Simpson',
+    url: 'http://www.blogger.xyz/homer/donuts',
+  }
+  const newBlog2 = {
+    title: 'Donuts Explained',
+    author: 'Homer Simpson',
+  }
+  
+  await api
+    .post('/api/blogs')
+    .send(newBlog1)
+    .expect(400)
+  
+  await api
+    .post('/api/blogs')
+    .send(newBlog2)
+    .expect(400)
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
