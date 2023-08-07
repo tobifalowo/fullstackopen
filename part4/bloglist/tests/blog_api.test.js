@@ -276,6 +276,24 @@ test('reject blog posted with invalid token', async () => {
     .expect(401)
 })
 
+
+test('reject blog deletion with invalid token', async () => {
+  const token = "abc"
+
+  const response = await api.get('/api/blogs')
+  const blog = response.body[0]
+  const id = blog.id
+
+  await api
+    .delete(`/api/blogs/${id}`)
+    .expect(401)
+
+  await api
+    .delete(`/api/blogs/${id}`)
+    .set('Authorization', `Bearer ${token}`)
+    .expect(401)
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
