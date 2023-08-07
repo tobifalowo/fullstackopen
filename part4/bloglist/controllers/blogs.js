@@ -1,5 +1,3 @@
-const jwt = require('jsonwebtoken')
-
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
@@ -11,18 +9,7 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
-  
-  let decodedToken = null
-  try {
-    decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!decodedToken.id) {
-      return response.status(401).json({ error: 'token invalid' })
-    }
-  } catch (e) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-
-  const user = await User.findById(decodedToken.id)
+  const user = await User.findById(request.user)
   
   const blog = new Blog({
     title: body.title,
@@ -44,20 +31,10 @@ blogsRouter.post('/', async (request, response) => {
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-  let decodedToken = null
-  try {
-    decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!decodedToken.id) {
-      return response.status(401).json({ error: 'token invalid' })
-    }
-  } catch (e) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-
   const blogId = request.params.id
   const blog = await Blog.findById(blogId)
 
-  if (blog.user.toString() !== decodedToken.id.toString()) {
+  if (blog.user.toString() !== request.user.toString()) {
     return response.status(401).json({ error: 'access denied' })
   }
 
