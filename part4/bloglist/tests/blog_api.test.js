@@ -16,11 +16,35 @@ beforeEach(async () => {
 
   await User.deleteMany({})
 
-  const userObjects = helper.initialUsers
-    .map(user => new User(user))
-  const userPromiseArray = userObjects.map(user => user.save())
-  await Promise.all(userPromiseArray)
+  await Promise.all(helper.initialUsers.map(async user => {
+    const userCopy = {...user}
+    delete userCopy.password
+    expect(user.password).toBeTruthy()
+    userCopy.passwordHash = await helper.getPasswordHash(user.password)
+    const reqUser = new User(userCopy)
+    await reqUser.save()
+  }))
 })
+
+const performLogin = async (user) => {
+  const selectedUser = user
+  const loginInfo = {
+    username: selectedUser.username,
+    password: selectedUser.password,
+  }
+
+  const response = await api
+    .post('/api/login')
+    .send(loginInfo)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  expect(response.body.token).toBeTruthy()
+  expect(response.body.username).toEqual(selectedUser.username)
+  expect(response.body.name).toEqual(selectedUser.name)
+
+  return response.body.token
+}
 
 test('correct amount of blogs are returned as json', async () => {
   const response = await api.get('/api/blogs')
@@ -36,30 +60,35 @@ test('the unique identifier property of the blog posts is named id', async () =>
 })
 
 test('a valid blog post can be added', async () => {
+  const token = await performLogin(helper.initialUsers[0])
+
   const newBlog = {
     title: 'Donuts Explained',
     author: 'Homer Simpson',
     url: 'http://www.blogger.xyz/homer/donuts',
-    likes: 0,
+    likes: 0
   }
   
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
-  const response = await api.get('/api/blogs')
+  const response2 = await api.get('/api/blogs')
 
-  const titles = response.body.map(r => r.title)
+  const titles = response2.body.map(r => r.title)
 
-  expect(response.body).toHaveLength(helper.initialBlogs.length + 1)
+  expect(response2.body).toHaveLength(helper.initialBlogs.length + 1)
   expect(titles).toContain(
     'Donuts Explained'
   )
 })
 
 test('blog likes default to 0', async () => {
+  const token = await performLogin(helper.initialUsers[0])
+
   const newBlog = {
     title: 'Donuts Explained',
     author: 'Homer Simpson',
@@ -68,6 +97,7 @@ test('blog likes default to 0', async () => {
   
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -81,6 +111,8 @@ test('blog likes default to 0', async () => {
 })
 
 test('reject invalid blog posts', async () => {
+  const token = await performLogin(helper.initialUsers[0])
+
   const newBlog1 = {
     author: 'Homer Simpson',
     url: 'http://www.blogger.xyz/homer/donuts',
@@ -92,16 +124,20 @@ test('reject invalid blog posts', async () => {
   
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog1)
     .expect(400)
   
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog2)
     .expect(400)
 })
 
 test('delete blog posts', async () => {
+  const token = await performLogin(helper.initialUsers[0])
+
   const newBlog = {
     title: 'Donuts Explained',
     author: 'Homer Simpson',
@@ -111,6 +147,7 @@ test('delete blog posts', async () => {
   
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -125,10 +162,9 @@ test('delete blog posts', async () => {
 
   expect(id).toBeDefined()
 
-  console.log('deleting: ', id)
-
   await api
     .delete(`/api/blogs/${id}`)
+    .set('Authorization', `Bearer ${token}`)
     .expect(204)
 
   response = await api.get('/api/blogs')
@@ -139,6 +175,8 @@ test('delete blog posts', async () => {
 })
 
 test('replace blog posts', async () => {
+  const token = await performLogin(helper.initialUsers[0])
+
   const newBlog = {
     title: 'Donuts Explained',
     author: 'Homer Simpson',
@@ -155,6 +193,7 @@ test('replace blog posts', async () => {
   
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -171,6 +210,7 @@ test('replace blog posts', async () => {
 
   await api
     .put(`/api/blogs/${id}`)
+    .set('Authorization', `Bearer ${token}`)
     .send(replacementBlog)
     .expect(200)
     .expect('Content-Type', /application\/json/)
@@ -183,6 +223,8 @@ test('replace blog posts', async () => {
 })
 
 test('a new blog references a user', async () => {
+  const token = await performLogin(helper.initialUsers[0])
+
   const newBlog = {
     title: 'Donuts Explained',
     author: 'Homer Simpson',
@@ -191,6 +233,7 @@ test('a new blog references a user', async () => {
   
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -209,6 +252,28 @@ test('a new blog references a user', async () => {
   expect(foundUser).toBeTruthy()
   expect(foundUser.blogs).toBeDefined()
   expect(foundUser.blogs.includes(foundBlog.id)).toEqual(true)
+})
+
+test('reject blog posted with invalid token', async () => {
+  const token = "abc"
+
+  const newBlog = {
+    title: 'Donuts Explained',
+    author: 'Homer Simpson',
+    url: 'http://www.blogger.xyz/homer/donuts',
+    likes: 0,
+  }
+  
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(401)
+  
+  await api
+    .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
+    .send(newBlog)
+    .expect(401)
 })
 
 afterAll(async () => {

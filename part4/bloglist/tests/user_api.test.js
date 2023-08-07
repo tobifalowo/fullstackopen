@@ -8,10 +8,14 @@ const User = require('../models/user')
 beforeEach(async () => {
   await User.deleteMany({})
 
-  const userObjects = helper.initialUsers
-    .map(user => new User(user))
-  const promiseArray = userObjects.map(user => user.save())
-  await Promise.all(promiseArray)
+  await Promise.all(helper.initialUsers.map(async user => {
+    const userCopy = {...user}
+    delete userCopy.password
+    expect(user.password).toBeTruthy()
+    userCopy.passwordHash = await helper.getPasswordHash(user.password)
+    const reqUser = new User(userCopy)
+    await reqUser.save()
+  }))
 })
 
 test('correct amount of users are returned as json', async () => {
