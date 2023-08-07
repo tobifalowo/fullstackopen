@@ -15,8 +15,9 @@ usersRouter.post('/', async (request, response) => {
   } else {
     const saltRounds = 10
     const passwordHash = await(bcrypt.hash(password, saltRounds))
+    const blogs = []
 
-    const user = new User({username, passwordHash, name})
+    const user = new User({username, passwordHash, name, blogs})
 
     if (user.username === undefined || user.passwordHash === undefined || password === undefined) {
       response.status(400).json({ error: 'invalid user object' })

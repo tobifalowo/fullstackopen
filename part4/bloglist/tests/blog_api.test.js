@@ -4,14 +4,22 @@ const helper = require('./test_helper')
 const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
 
   const blogObjects = helper.initialBlogs
     .map(blog => new Blog(blog))
-  const promiseArray = blogObjects.map(blog => blog.save())
-  await Promise.all(promiseArray)
+  const blogPromiseArray = blogObjects.map(blog => blog.save())
+  await Promise.all(blogPromiseArray)
+
+  await User.deleteMany({})
+
+  const userObjects = helper.initialUsers
+    .map(user => new User(user))
+  const userPromiseArray = userObjects.map(user => user.save())
+  await Promise.all(userPromiseArray)
 })
 
 test('correct amount of blogs are returned as json', async () => {
@@ -161,8 +169,6 @@ test('replace blog posts', async () => {
 
   expect(id).toBeDefined()
 
-  console.log('replacing: ', id)
-
   await api
     .put(`/api/blogs/${id}`)
     .send(replacementBlog)
@@ -174,6 +180,35 @@ test('replace blog posts', async () => {
 
   expect(response.body).toHaveLength(helper.initialBlogs.length + 1)
   expect(replacedBlog.title).toBe(replacementBlog.title)
+})
+
+test('a new blog references a user', async () => {
+  const newBlog = {
+    title: 'Donuts Explained',
+    author: 'Homer Simpson',
+    url: 'http://www.blogger.xyz/homer/donuts',
+  }
+  
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  const foundBlog = response.body.find(blog => blog.title === newBlog.title)
+
+  expect(response.body).toHaveLength(helper.initialBlogs.length + 1)
+  expect(foundBlog.user).toBeTruthy()
+
+  const userID = foundBlog.user.id
+  expect(userID).toBeTruthy()
+  const foundUser = await User.findById(userID)
+
+  expect(foundUser).toBeTruthy()
+  expect(foundUser.blogs).toBeDefined()
+  expect(foundUser.blogs.includes(foundBlog.id)).toEqual(true)
 })
 
 afterAll(async () => {
