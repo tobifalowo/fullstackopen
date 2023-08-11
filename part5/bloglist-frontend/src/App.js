@@ -9,6 +9,7 @@ const App = () => {
   const [username, setUsername] = useState('') 
   const [password, setPassword] = useState('') 
   const [errorMessage, setErrorMessage] = useState(null)
+  const [notification, setNotification] = useState(null)
   const [user, setUser] = useState(null)
   const [author, setAuthor] = useState('') 
   const [title, setTitle] = useState('') 
@@ -69,6 +70,7 @@ const App = () => {
       setAuthor('')
       setUrl('')
       setBlogs(blogs.concat(blog))
+      setNotification(`A new blog was added: "${blog.title}" by ${blog.author}`)
     } catch (exception) {
       setErrorMessage('Failed to create blog')
       setTimeout(() => {
@@ -79,6 +81,8 @@ const App = () => {
 
   const loginForm = () => (
     <form onSubmit={handleLogin}>
+      <h2>Log in to applicaton</h2>
+      <Notification message={errorMessage} />
       <div>
         Username
           <input
@@ -104,6 +108,8 @@ const App = () => {
   const blogList = () => (
     <>
       <h2>Blogs</h2>
+      {errorMessage && <Notification message={errorMessage} />}
+      {notification && <Notification message={notification} color='green'/>}
       <div>
         {`${user.name} logged in`}
         <button onClick={handleLogout}>Logout</button>
@@ -170,6 +176,28 @@ const CreateBlog = ({handleNewBlog, title, setTitle, author, setAuthor, url, set
       </form>      
 
     </>
+  )
+}
+
+const Notification = ({ message, color='red' }) => {
+  const notificationStyle = {
+    color: color,
+    background: 'lightgrey',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+  }
+
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className='error' style={notificationStyle}>
+      {message}
+    </div>
   )
 }
 
