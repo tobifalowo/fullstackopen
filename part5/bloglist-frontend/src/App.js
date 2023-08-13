@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import Togglable from './components/Togglable'
+import BlogForm from './components/BlogForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -12,9 +13,6 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [notification, setNotification] = useState(null)
   const [user, setUser] = useState(null)
-  const [author, setAuthor] = useState('') 
-  const [title, setTitle] = useState('') 
-  const [url, setUrl] = useState('')
   const blogFormRef = useRef()
 
   useEffect(() => {
@@ -61,24 +59,22 @@ const App = () => {
     setUser(null)
   }
 
-  const handleNewBlog = async (event) => {
-    event.preventDefault()
-    
+  const createBlog = async (newBlog) => {
     try {
-      const blog = await blogService.create({
-        title, author, url
-      })
+      const blog = await blogService.create(newBlog)
       blogFormRef.current.toggleVisibility()
-      setTitle('')
-      setAuthor('')
-      setUrl('')
       setBlogs(blogs.concat(blog))
       setNotification(`A new blog was added: "${blog.title}" by ${blog.author}`)
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
+      return true
     } catch (exception) {
       setErrorMessage('Failed to create blog')
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
+      return false
     }
   }
 
@@ -120,14 +116,8 @@ const App = () => {
       </div>
       <br/>
       <Togglable buttonLabel='New Note' ref={blogFormRef}>
-        <CreateBlog
-          handleNewBlog={handleNewBlog}
-          title={title}
-          setTitle={setTitle}
-          author={author}
-          setAuthor={setAuthor}
-          url={url}
-          setUrl={setUrl}
+        <BlogForm
+          createBlog={createBlog}
         />
       </Togglable>
       {blogs.map(blog =>
@@ -143,45 +133,6 @@ const App = () => {
         blogList()
       }
     </div>
-  )
-}
-
-const CreateBlog = ({handleNewBlog, title, setTitle, author, setAuthor, url, setUrl}) => {
-  return (
-    <>
-      <h2>Create New</h2>
-      <form onSubmit={handleNewBlog}>
-        <div>
-          Title:
-            <input
-            type="text"
-            value={title}
-            name="Title"
-            onChange={({ target }) => setTitle(target.value)}
-          />
-        </div>
-        <div>
-          Author:
-            <input
-            type="text"
-            value={author}
-            name="Author"
-            onChange={({ target }) => setAuthor(target.value)}
-          />
-        </div>
-        <div>
-          URL:
-            <input
-            type="text"
-            value={url}
-            name="Url"
-            onChange={({ target }) => setUrl(target.value)}
-          />
-        </div>
-        <button type="submit">Create</button>
-      </form>      
-
-    </>
   )
 }
 
