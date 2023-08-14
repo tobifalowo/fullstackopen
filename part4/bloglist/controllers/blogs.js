@@ -50,7 +50,8 @@ blogsRouter.put('/:id', async (request, response) => {
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: body.likes || 0
+    likes: body.likes || 0,
+    user: body.user
   }
 
   if (blog.title === undefined || blog.url === undefined) {

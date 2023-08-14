@@ -78,6 +78,31 @@ const App = () => {
     }
   }
 
+  const likeBlog = async (blog) => {
+    try {
+      const id = blog.id
+      const setLikes = blog.likes + 1
+      const user = blog.user.id
+      let copy = { ...blog, likes: setLikes, user: user }
+      delete copy.id
+
+      const updatedBlog = await blogService.update(id, copy)
+      setBlogs([...blogs].map(blog => blog.id === id ? updatedBlog : blog))
+      setNotification(`Blog was liked: "${blog.title}" by ${blog.author}`)
+      setTimeout(() => {
+        setNotification(null)
+      }, 5000)
+      return true
+    } catch (exception) {
+      console.log(exception)
+      setErrorMessage('Failed to like blog')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+      return false
+    }
+  }
+
   const loginForm = () => (
     <form onSubmit={handleLogin}>
       <h2>Log in to applicaton</h2>
@@ -121,7 +146,7 @@ const App = () => {
         />
       </Togglable>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} likeBlog={likeBlog}/>
       )}
     </>
   )
