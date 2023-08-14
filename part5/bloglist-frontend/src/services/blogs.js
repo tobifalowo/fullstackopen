@@ -30,8 +30,10 @@ const update = (id, newObject) => {
 }
 
 const deleteEntry = (id) => {
-  console.log('deleting', id)
-  return axios.delete(`${baseUrl}/${id}`)
+  const config = {
+    headers: { Authorization: token},
+  }
+  return axios.delete(`${baseUrl}/${id}`, config)
 }
 
 // eslint-disable-next-line import/no-anonymous-default-export

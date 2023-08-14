@@ -107,6 +107,29 @@ const App = () => {
     }
   }
 
+  const deleteBlog = async (blog) => {
+    try {
+      const id = blog.id
+
+      if (window.confirm(`Delete "${blog.title}" by ${blog.author}?`)) {
+        const result = await blogService.deleteEntry(id)
+        setBlogs( blogs.filter(b => b.id !== id) )
+        setNotification(`Blog was removed: "${blog.title}" by ${blog.author}`)
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
+        return true
+      }
+    } catch (exception) {
+      console.log(exception)
+      setErrorMessage('Failed to remove blog')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+      return false
+    }
+  }
+
   const loginForm = () => (
     <form onSubmit={handleLogin}>
       <h2>Log in to applicaton</h2>
@@ -150,7 +173,7 @@ const App = () => {
         />
       </Togglable>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} likeBlog={likeBlog}/>
+        <Blog key={blog.id} blog={blog} likeBlog={likeBlog} deleteBlog={deleteBlog} />
       )}
     </>
   )

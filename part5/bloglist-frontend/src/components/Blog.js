@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const Blog = ({blog, likeBlog}) => {
+const Blog = ({blog, likeBlog, deleteBlog}) => {
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -24,6 +24,11 @@ const Blog = ({blog, likeBlog}) => {
     await likeBlog(blog)
   }
 
+  const clickDelete = async (event) => {
+    event.preventDefault()
+    await deleteBlog(blog)
+  }
+
   return (
     <div style={blogStyle}>
       <div>
@@ -38,6 +43,8 @@ const Blog = ({blog, likeBlog}) => {
         <button onClick={clickLike}>Like</button>
         <br/>
         {blog.user && blog.user.name}
+        <br/>
+        <button onClick={clickDelete}>Delete</button>
       </div>
     </div>
   )
