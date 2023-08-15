@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const Blog = ({blog, likeBlog, deleteBlog}) => {
+const Blog = ({ blog, likeBlog, deleteBlog }) => {
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,

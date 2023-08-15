@@ -14,7 +14,7 @@ const getAll = () => {
 
 const create = (newObject) => {
   const config = {
-    headers: { Authorization: token},
+    headers: { Authorization: token },
   }
 
   const request = axios.post(baseUrl, newObject, config)
@@ -23,7 +23,7 @@ const create = (newObject) => {
 
 const update = (id, newObject) => {
   const config = {
-    headers: { Authorization: token},
+    headers: { Authorization: token },
   }
   const request = axios.put(`${baseUrl}/${id}`, newObject, config)
   return request.then(response => response.data)
@@ -31,10 +31,9 @@ const update = (id, newObject) => {
 
 const deleteEntry = (id) => {
   const config = {
-    headers: { Authorization: token},
+    headers: { Authorization: token },
   }
   return axios.delete(`${baseUrl}/${id}`, config)
 }
 
-// eslint-disable-next-line import/no-anonymous-default-export
 export default { getAll, create, setToken, update, deleteEntry }

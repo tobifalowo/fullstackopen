@@ -8,8 +8,8 @@ import loginService from './services/login'
 const App = () => {
   const [blogs, setBlogs] = useState([])
 
-  const [username, setUsername] = useState('') 
-  const [password, setPassword] = useState('') 
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState(null)
   const [notification, setNotification] = useState(null)
   const [user, setUser] = useState(null)
@@ -18,9 +18,9 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogsSorted(blogs) )
-    )  
+    )
   }, [])
-  
+
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
@@ -36,7 +36,7 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault()
-    
+
     try {
       const user = await loginService.login({
         username, password,
@@ -112,7 +112,7 @@ const App = () => {
       const id = blog.id
 
       if (window.confirm(`Delete "${blog.title}" by ${blog.author}?`)) {
-        const result = await blogService.deleteEntry(id)
+        await blogService.deleteEntry(id)
         setBlogs( blogs.filter(b => b.id !== id) )
         setNotification(`Blog was removed: "${blog.title}" by ${blog.author}`)
         setTimeout(() => {
@@ -136,7 +136,7 @@ const App = () => {
       <Notification message={errorMessage} />
       <div>
         Username
-          <input
+        <input
           type="text"
           value={username}
           name="Username"
@@ -145,7 +145,7 @@ const App = () => {
       </div>
       <div>
         Password
-          <input
+        <input
           type="password"
           value={password}
           name="Password"
@@ -153,7 +153,7 @@ const App = () => {
         />
       </div>
       <button type="submit">Login</button>
-    </form>      
+    </form>
   )
 
   const blogList = () => (
