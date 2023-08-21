@@ -7,7 +7,7 @@ import Blog from './Blog'
 describe ('<Blog />', () => {
   let container
 
-  const blog = {
+  let blog = {
     title: 'Donuts Explained',
     author: 'Homer Simpson',
     url: 'http://www.blogger.xyz/homer/donuts',
@@ -18,9 +18,13 @@ describe ('<Blog />', () => {
     }
   }
 
+  const likeBlog = (blog) => {
+    blog.likes += 1
+  }
+
   beforeEach(() => {
     container = render(
-      <Blog blog={blog} />
+      <Blog blog={blog} likeBlog={likeBlog} />
     ).container
   })
 
@@ -50,5 +54,18 @@ describe ('<Blog />', () => {
     expect(element).toBeVisible()
     element = screen.queryByText(`Likes: ${blog.likes}`, { exact: false })
     expect(element).toBeVisible()
+  })
+
+  test('calls provided event handler twice if like button is clicked twice', async () => {
+    const user = userEvent.setup()
+    const viewButton = screen.getByText('View')
+    await user.click(viewButton)
+    const likeButton = screen.getByText('Like')
+    const initialLikes = blog.likes
+    await user.click(likeButton)
+    expect(blog.likes).toEqual(initialLikes+1)
+    await user.click(likeButton)
+    expect(blog.likes).toEqual(initialLikes+2)
+    blog.likes = initialLikes
   })
 })
