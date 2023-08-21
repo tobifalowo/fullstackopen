@@ -1,6 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
 describe ('<Blog />', () => {
@@ -38,5 +39,16 @@ describe ('<Blog />', () => {
     expect(element).not.toBeVisible()
     element = screen.queryByText(`${blog.likes}`, { exact: false })
     expect(element).not.toBeVisible()
+  })
+
+  test('renders URL and number when button is clicked', async () => {
+    const user = userEvent.setup()
+    const button = screen.getByText('View')
+    await user.click(button)
+
+    let element = screen.queryByText(`${blog.url}`, { exact: false })
+    expect(element).toBeVisible()
+    element = screen.queryByText(`Likes: ${blog.likes}`, { exact: false })
+    expect(element).toBeVisible()
   })
 })
