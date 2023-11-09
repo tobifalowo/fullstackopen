@@ -132,7 +132,7 @@ const App = () => {
 
   const loginForm = () => (
     <form onSubmit={handleLogin}>
-      <h2>Log in to applicaton</h2>
+      <h2>Log in to Application</h2>
       <Notification message={errorMessage} />
       <div>
         Username
