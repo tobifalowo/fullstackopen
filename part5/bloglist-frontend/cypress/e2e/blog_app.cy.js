@@ -31,4 +31,27 @@ describe('Blog app', function() {
       cy.contains('Wrong credentials')
     })
   })
+
+  describe('Blog app', function() {
+    describe('When logged in', function() {
+      beforeEach(function() {
+        cy.get('#username').type('mluukkai')
+        cy.get('#password').type('salainen')
+        cy.get('#login-button').click()
+  
+        cy.contains('Matti Luukkainen logged in')
+      })
+
+      it('A blog can be created', function() {
+        cy.get('button').contains('New Note').click()
+        cy.get('[aria-label="title"]').type('abc')
+        cy.get('[aria-label="author"]').type('bcd')
+        cy.get('[aria-label="url"]').type('cde')
+        cy.get('button').contains('Create').click()
+
+        cy.get('.error').contains('A new blog was added')
+        cy.get('.blog div:first').contains('abc')
+      })
+    })
+  })
 })
