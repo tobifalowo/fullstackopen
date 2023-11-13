@@ -86,7 +86,7 @@ describe('Blog app', function() {
         cy.get('.blog div:first').contains('zxy').should('not.exist')
       })
 
-      it.only('Only created can see the delete button', function() {
+      it('Only created can see the delete button', function() {
         cy.get('button').contains('New Note').click()
         cy.get('[aria-label="title"]').type('zxy')
         cy.get('[aria-label="author"]').type('bcd')
@@ -105,6 +105,76 @@ describe('Blog app', function() {
         cy.get('.blog div:first').contains('zxy')
         cy.get('button').contains('View').click()
         cy.get('button').contains('Delete').should('not.exist')
+      })
+
+      it.only('Blogs are sorted by likes', function() {
+        cy.get('button').contains('New Note').click()
+        cy.get('[aria-label="title"]').type('aaa')
+        cy.get('[aria-label="author"]').type('bcd')
+        cy.get('[aria-label="url"]').type('cde')
+        cy.get('button').contains('Create').click()
+
+        cy.get('button').contains('New Note').click()
+        cy.get('[aria-label="title"]').type('ccc')
+        cy.get('[aria-label="author"]').type('bcd')
+        cy.get('[aria-label="url"]').type('cde')
+        cy.get('button').contains('Create').click()
+
+        cy.get('button').contains('New Note').click()
+        cy.get('[aria-label="title"]').type('bbb')
+        cy.get('[aria-label="author"]').type('bcd')
+        cy.get('[aria-label="url"]').type('cde')
+        cy.get('button').contains('Create').click()
+
+        cy.get('.blog').eq(0).should('contain', 'aaa')
+        cy.get('.blog').eq(1).should('contain', 'ccc')
+        cy.get('.blog').eq(2).should('contain', 'bbb')
+
+        cy.get('.blog').eq(2).within(() => {
+          cy.get('button').contains('View').click()
+          cy.get('button').contains('Like').click()
+        })
+
+        cy.get('.blog').eq(0).contains('Likes: 1')
+        cy.get('.blog').eq(0).contains('bbb')
+        cy.get('.blog').eq(1).should('contain', 'aaa')
+        cy.get('.blog').eq(2).should('contain', 'ccc')
+
+        cy.get('.blog').eq(2).within(() => {
+          cy.contains('ccc')
+          cy.get('button').contains('View').click()
+          cy.get('button').contains('Like').click()
+        })
+        cy.get('.blog').eq(0).contains('Likes: 1')
+        cy.get('.blog').eq(0).contains('bbb')
+        cy.get('.blog').eq(1).should('contain', 'ccc')
+        cy.get('.blog').eq(1).contains('Likes: 1')
+        cy.get('.blog').eq(2).should('contain', 'aaa')
+
+        cy.get('button').contains('Logout').click()
+        cy.get('#username').type('ppeloton')
+        cy.get('#password').type('lamppu1')
+        cy.get('#login-button').click()
+
+        cy.get('.blog').eq(0).should('contain', 'ccc')
+        cy.get('.blog').eq(0).within(() => {
+          cy.get('button').contains('View').click()
+        })
+        cy.get('.blog').eq(1).within(() => {
+          cy.get('button').contains('View').click()
+        })
+
+        cy.get('.blog').eq(0).should('contain', 'ccc')
+        cy.get('.blog').eq(0).contains('Likes: 1')
+        cy.get('.blog').eq(1).contains('Likes: 1')
+        cy.get('.blog').eq(1).should('contain', 'bbb')
+        cy.get('.blog').eq(2).should('contain', 'aaa')
+
+        cy.get('.blog').eq(1).within(() => {
+          cy.get('button').contains('Like').click()
+        })
+        cy.get('.blog').eq(0).should('contain', 'bbb')
+        cy.get('.blog').eq(0).contains('Likes: 2')
       })
     })
   })

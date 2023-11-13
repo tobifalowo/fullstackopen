@@ -47,16 +47,16 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPassword('')
+
+      blogService.getAll().then(blogs =>
+        setBlogs( blogsSorted(blogs) )
+      )
     } catch (exception) {
       setErrorMessage('Wrong credentials')
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
     }
-
-    blogService.getAll().then(blogs =>
-      setBlogs( blogsSorted(blogs) )
-    )
   }
 
   const handleLogout = async (event) => {
