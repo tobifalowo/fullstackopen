@@ -52,6 +52,33 @@ describe('Blog app', function() {
         cy.get('.error').contains('A new blog was added')
         cy.get('.blog div:first').contains('abc')
       })
+
+      it('A blog can be liked', function() {
+        cy.get('button').contains('New Note').click()
+        cy.get('[aria-label="title"]').type('zxy')
+        cy.get('[aria-label="author"]').type('bcd')
+        cy.get('[aria-label="url"]').type('cde')
+        cy.get('button').contains('Create').click()
+
+        cy.get('.blog div:first').contains('zxy')
+        cy.get('button').contains('View').click()
+        cy.get('button').contains('Like').click()
+        cy.get('.blog').contains('Likes: 1')
+      })
+
+      it.only('A blog can be deleted', function() {
+        cy.get('button').contains('New Note').click()
+        cy.get('[aria-label="title"]').type('zxy')
+        cy.get('[aria-label="author"]').type('bcd')
+        cy.get('[aria-label="url"]').type('cde')
+        cy.get('button').contains('Create').click()
+
+        cy.get('.blog div:first').contains('zxy')
+        cy.get('button').contains('View').click()
+        cy.get('button').contains('Delete').click()
+        cy.get('.error').contains('Blog was removed')
+        cy.get('.blog div:first').contains('zxy').should('not.exist')
+      })
     })
   })
 })
