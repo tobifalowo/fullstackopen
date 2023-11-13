@@ -6,7 +6,13 @@ describe('Blog app', function() {
       username: 'mluukkai',
       password: 'salainen'
     }
+    const user2 = {
+      name: 'Pelle Peloton',
+      username: 'ppeloton',
+      password: 'lamppu1'
+    }
     cy.request('POST', 'http://localhost:3001/api/users/', user)
+    cy.request('POST', 'http://localhost:3001/api/users/', user2)
     cy.visit('http://localhost:3000')
   })
 
@@ -38,7 +44,7 @@ describe('Blog app', function() {
         cy.get('#username').type('mluukkai')
         cy.get('#password').type('salainen')
         cy.get('#login-button').click()
-  
+
         cy.contains('Matti Luukkainen logged in')
       })
 
@@ -66,7 +72,7 @@ describe('Blog app', function() {
         cy.get('.blog').contains('Likes: 1')
       })
 
-      it.only('A blog can be deleted', function() {
+      it('A blog can be deleted', function() {
         cy.get('button').contains('New Note').click()
         cy.get('[aria-label="title"]').type('zxy')
         cy.get('[aria-label="author"]').type('bcd')
@@ -78,6 +84,27 @@ describe('Blog app', function() {
         cy.get('button').contains('Delete').click()
         cy.get('.error').contains('Blog was removed')
         cy.get('.blog div:first').contains('zxy').should('not.exist')
+      })
+
+      it.only('Only created can see the delete button', function() {
+        cy.get('button').contains('New Note').click()
+        cy.get('[aria-label="title"]').type('zxy')
+        cy.get('[aria-label="author"]').type('bcd')
+        cy.get('[aria-label="url"]').type('cde')
+        cy.get('button').contains('Create').click()
+
+        cy.get('.blog div:first').contains('zxy')
+        cy.get('button').contains('View').click()
+        cy.get('button').contains('Delete')
+
+        cy.get('button').contains('Logout').click()
+        cy.get('#username').type('ppeloton')
+        cy.get('#password').type('lamppu1')
+        cy.get('#login-button').click()
+
+        cy.get('.blog div:first').contains('zxy')
+        cy.get('button').contains('View').click()
+        cy.get('button').contains('Delete').should('not.exist')
       })
     })
   })
